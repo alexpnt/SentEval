@@ -14,7 +14,7 @@ PATH_TO_DATA = '../data'
 sys.path.insert(0, PATH_TO_SENTEVAL)
 import senteval
 
-BERT_MODEL = '../../../../data/models/bert/base/en/uncased_L-12_H-768_A-12'
+BERT_MODEL_DIR = '../../../../data/models/bert/base/en/uncased_L-12_H-768_A-12'
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 512
 
@@ -71,14 +71,14 @@ def batcher(params, batch):
 
 
 def load_bert():
-    bert_config = modeling.BertConfig.from_json_file(BERT_MODEL + '/bert_config.json')
+    bert_config = modeling.BertConfig.from_json_file(BERT_MODEL_DIR + '/bert_config.json')
     layer_indexes = [-1, -2]
 
     run_config = tf.contrib.tpu.RunConfig(tpu_config=tf.contrib.tpu.TPUConfig())
 
     model_fn = extract_features.model_fn_builder(
         bert_config=bert_config,
-        init_checkpoint=BERT_MODEL + '/bert_model.ckpt',
+        init_checkpoint=BERT_MODEL_DIR + '/bert_model.ckpt',
         layer_indexes=layer_indexes,
         use_tpu=False,
         use_one_hot_embeddings=False)
@@ -98,7 +98,7 @@ params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 12
                                  'tenacity': 3, 'epoch_size': 2}
 
 params_senteval['bert'] = load_bert()
-params_senteval['tokenizer'] = tokenization.FullTokenizer(vocab_file=BERT_MODEL + '/vocab.txt', do_lower_case=True)
+params_senteval['tokenizer'] = tokenization.FullTokenizer(vocab_file=BERT_MODEL_DIR + '/vocab.txt', do_lower_case=True)
 
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
@@ -111,5 +111,5 @@ if __name__ == "__main__":
                       'Length', 'WordContent', 'Depth', 'TopConstituents',
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
-    results = se.eval(['STSBenchmarkUnsupervised'])
+    results = se.eval(transfer_tasks)
     print(results)
