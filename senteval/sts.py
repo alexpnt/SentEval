@@ -30,12 +30,12 @@ class STSEval(object):
 
         for dataset in self.datasets:
             sent1, sent2 = zip(*[l.split("\t") for l in
-                               io.open(fpath + '/STS.input.%s.txt' % dataset,
-                                       encoding='utf8').read().splitlines()])
+                                 io.open(fpath + '/STS.input.%s.txt' % dataset,
+                                         encoding='utf8').read().splitlines()])
             raw_scores = np.array([x for x in
                                    io.open(fpath + '/STS.gs.%s.txt' % dataset,
                                            encoding='utf8')
-                                   .read().splitlines()])
+                                  .read().splitlines()])
             not_empty_idx = raw_scores != ''
 
             gs_scores = [float(x) for x in raw_scores[not_empty_idx]]
@@ -84,9 +84,9 @@ class STSEval(object):
 
         weights = [results[dset]['nsamples'] for dset in results.keys()]
         list_prs = np.array([results[dset]['pearson'][0] for
-                            dset in results.keys()])
+                             dset in results.keys()])
         list_spr = np.array([results[dset]['spearman'][0] for
-                            dset in results.keys()])
+                             dset in results.keys()])
 
         avg_pearson = np.average(list_prs)
         avg_spearman = np.average(list_spr)
@@ -197,6 +197,43 @@ class STSBenchmarkUnsupervisedEval(STSEval):
             sent1 = np.array(stsb_data['X_A'])
             sent2 = np.array(stsb_data['X_B'])
             gs_scores = np.asarray(stsb_data['y'])
+
+            # sort data by length to minimize padding in batcher
+            sorted_data = sorted(zip(sent1, sent2, gs_scores),
+                                 key=lambda z: (len(z[0]), len(z[1]), z[2]))
+            sent1, sent2, gs_scores = map(list, zip(*sorted_data))
+
+            self.data[dataset] = (sent1, sent2, gs_scores)
+            self.samples += sent1 + sent2
+
+
+class SICKRelatednessUnsupervisedEval(STSEval):
+    def __init__(self, task_path, seed=1111):
+        logging.debug('\n\n***** Transfer task : SICKRelatedness Unsupervised*****\n\n')
+        self.seed = seed
+        self.datasets = ['trial', 'test_annotated']
+        self.data = {}
+        self.samples = []
+        self.loadFile(task_path)
+
+    def loadFile(self, fpath):
+        for dataset in self.datasets:
+            dataset_path = os.path.join(fpath, 'SICK_%s.txt' % dataset)
+            sick_data = {'X_A': [], 'X_B': [], 'y': []}
+            with io.open(dataset_path, 'r', encoding='utf-8') as f:
+                for idx, line in enumerate(f):
+                    if idx == 0:
+                        continue
+                    text = line.strip().split('\t')
+                    sick_data['X_A'].append(text[1].split())
+                    sick_data['X_B'].append(text[2].split())
+                    sick_data['y'].append(text[3])
+
+            sick_data['y'] = [float(s) for s in sick_data['y']]
+
+            sent1 = np.array(sick_data['X_A'])
+            sent2 = np.array(sick_data['X_B'])
+            gs_scores = np.asarray(sick_data['y'])
 
             # sort data by length to minimize padding in batcher
             sorted_data = sorted(zip(sent1, sent2, gs_scores),

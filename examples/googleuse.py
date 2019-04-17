@@ -12,6 +12,8 @@ import sys
 import logging
 import tensorflow as tf
 import tensorflow_hub as hub
+import tf_sentencepiece
+
 tf.logging.set_verbosity(0)
 
 # Set PATHs
@@ -27,25 +29,30 @@ session = tf.Session()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TFHUB_CACHE_DIR'] = '../data/models/tfhub_modules'
 
+
 # SentEval prepare and batcher
 def prepare(params, samples):
     return
+
 
 def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
     embeddings = params['google_use'](batch)
     return embeddings
 
+
 def make_embed_fn(module):
-  with tf.Graph().as_default():
-    sentences = tf.placeholder(tf.string)
-    embed = hub.Module(module)
-    embeddings = embed(sentences)
-    session = tf.train.MonitoredSession()
-  return lambda x: session.run(embeddings, {sentences: x})
+    with tf.Graph().as_default():
+        sentences = tf.placeholder(tf.string)
+        embed = hub.Module(module)
+        embeddings = embed(sentences)
+        session = tf.train.MonitoredSession()
+    return lambda x: session.run(embeddings, {sentences: x})
+
 
 # Start TF session and load Google Universal Sentence Encoder
 encoder = make_embed_fn("https://tfhub.dev/google/universal-sentence-encoder-large/3")
+# encoder = make_embed_fn("https://tfhub.dev/google/universal-sentence-encoder-xling-many/1")
 
 # Set params for SentEval
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
