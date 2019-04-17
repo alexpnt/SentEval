@@ -170,3 +170,38 @@ class STSBenchmarkEval(SICKRelatednessEval):
 
         sick_data['y'] = [float(s) for s in sick_data['y']]
         return sick_data
+
+
+class STSBenchmarkUnsupervisedEval(STSEval):
+    def __init__(self, task_path, seed=1111):
+        logging.debug('\n\n***** Transfer task : STSBenchmark Unsupervised*****\n\n')
+        self.seed = seed
+        self.datasets = ['dev', 'test']
+        self.data = {}
+        self.samples = []
+        self.loadFile(task_path)
+
+    def loadFile(self, fpath):
+        for dataset in self.datasets:
+            dataset_path = os.path.join(fpath, 'sts-%s.csv' % dataset)
+            stsb_data = {'X_A': [], 'X_B': [], 'y': []}
+            with io.open(dataset_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    text = line.strip().split('\t')
+                    stsb_data['X_A'].append(text[5].split())
+                    stsb_data['X_B'].append(text[6].split())
+                    stsb_data['y'].append(text[4])
+
+            stsb_data['y'] = [float(s) for s in stsb_data['y']]
+
+            sent1 = np.array(stsb_data['X_A'])
+            sent2 = np.array(stsb_data['X_B'])
+            gs_scores = np.asarray(stsb_data['y'])
+
+            # sort data by length to minimize padding in batcher
+            sorted_data = sorted(zip(sent1, sent2, gs_scores),
+                                 key=lambda z: (len(z[0]), len(z[1]), z[2]))
+            sent1, sent2, gs_scores = map(list, zip(*sorted_data))
+
+            self.data[dataset] = (sent1, sent2, gs_scores)
+            self.samples += sent1 + sent2
