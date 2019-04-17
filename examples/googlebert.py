@@ -14,7 +14,7 @@ PATH_TO_DATA = '../data'
 sys.path.insert(0, PATH_TO_SENTEVAL)
 import senteval
 
-BERT_MODEL = '../../../data/models/bert/base/en/uncased_L-12_H-768_A-12'
+BERT_MODEL = '../../../../data/models/bert/base/en/uncased_L-12_H-768_A-12'
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 512
 
@@ -65,7 +65,7 @@ def batcher(params, batch):
     input_fn = extract_features.input_fn_builder(features=features, seq_length=MAX_SEQ_LENGTH)
     embeddings = []
     for result in params['bert'].predict(input_fn, yield_single_examples=True):
-        embeddings += [pooling(result, layer_index=0, strategy='CLS')]
+        embeddings += [pooling(result, layer_index=0, strategy='max')]
 
     return np.vstack(embeddings)
 
@@ -107,9 +107,9 @@ if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare)
     transfer_tasks = ['STS12', 'STS13', 'STS14', 'STS15', 'STS16',
                       'MR', 'CR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
-                      'SICKEntailment', 'SICKRelatedness', 'STSBenchmark',
+                      'SICKEntailment', 'SICKRelatedness', 'STSBenchmark', 'STSBenchmarkUnsupervised',
                       'Length', 'WordContent', 'Depth', 'TopConstituents',
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
-    results = se.eval(transfer_tasks)
+    results = se.eval(['STSBenchmarkUnsupervised'])
     print(results)
