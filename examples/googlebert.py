@@ -72,7 +72,7 @@ def batcher(params, batch):
 
 def load_bert():
     bert_config = modeling.BertConfig.from_json_file(BERT_MODEL + '/bert_config.json')
-    layer_indexes = [-1, -2, -3, -4]
+    layer_indexes = [-1, -2]
 
     run_config = tf.contrib.tpu.RunConfig(tpu_config=tf.contrib.tpu.TPUConfig())
 
