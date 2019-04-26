@@ -53,7 +53,7 @@ def batcher(params, batch):
         bpe_sent = '</s> {} </s>'.format(bpe_sent.strip()).split()
         bpe_batch += [bpe_sent]
 
-    batch_size = params['batch_size']
+    batch_size = len(bpe_batch)
     max_length = max([len(bpe_sent) for bpe_sent in bpe_batch])
 
     # create input data

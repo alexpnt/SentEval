@@ -62,5 +62,5 @@ if __name__ == "__main__":
                       'SICKRelatednessUnsupervised', 'Length', 'WordContent', 'Depth', 'TopConstituents',
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
-    results = se.eval([transfer_tasks])
+    results = se.eval(transfer_tasks)
     print(results)
