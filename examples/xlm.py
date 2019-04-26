@@ -71,7 +71,7 @@ def batcher(params, batch):
         tensor = params['xlm']('fwd', x=word_ids, lengths=lengths, langs=langs, causal=False).contiguous()
         emb = np.amax(tensor.numpy(), axis=0)
         embeddings += [emb]
-    print(np.vstack(embeddings).shape)
+
     return np.vstack(embeddings)
 
 
