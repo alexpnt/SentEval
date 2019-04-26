@@ -50,7 +50,7 @@ def make_embed_fn(module):
 
 
 # Start TF session and load Google Universal Sentence Encoder
-encoder = make_embed_fn("https://tfhub.dev/google/universal-sentence-encoder-large/3")
+encoder = make_embed_fn("https://tfhub.dev/google/universal-sentence-encoder-xling-many/1")
 
 # Set params for SentEval
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}

@@ -25,3 +25,6 @@ Werkzeug==0.15.2
 Cython==0.29.7
 transliterate==1.10.2
 jieba==0.39
+pytorch-pretrained-bert==0.6.2
+spacy==2.1.3
+ftfy==4.4.3
