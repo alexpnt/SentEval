@@ -18,7 +18,6 @@ PATH_TO_LASER = '../../LASER'
 BPE_CODES = '../../../../data/models/xlm/codes_xnli_15'
 BPE_VOCAB = '../../../../data/models/xlm/vocab_xnli_15'
 
-
 # import XLM
 sys.path.insert(0, PATH_TO_XLM)
 from src.utils import AttrDict
@@ -59,11 +58,12 @@ def batcher(params, batch):
     # create input data
     word_ids = torch.LongTensor(max_length, batch_size).fill_(params['xlm_params'].pad_index)
     for i in range(len(bpe_batch)):
-        sent = torch.LongTensor([dico.index(w) for w in bpe_batch[i][0]])
+        sent = torch.LongTensor([dico.index(w) for w in bpe_batch[i]])
         word_ids[:len(sent), i] = sent
 
     lengths = torch.LongTensor([len(sent) for sent in bpe_batch])
-    langs = torch.LongTensor([params['xlm_params'].lang2id[lang] for lang in ['en']]).unsqueeze(0).expand(max_length, batch_size)
+    langs = torch.LongTensor([params['xlm_params'].lang2id[lang] for lang in ['en']]).unsqueeze(0).expand(max_length,
+                                                                                                          batch_size)
 
     # encode
     embeddings = []
@@ -91,8 +91,9 @@ def load_xlm():
 
     return model, dico, params
 
+
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'batch_size': 128}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'batch_size': 1024}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 
@@ -112,9 +113,8 @@ if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare)
     transfer_tasks = ['STS12', 'STS13', 'STS14', 'STS15', 'STS16',
                       'MR', 'CR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
-                      'SICKEntailment', 'SICKRelatedness', 'STSBenchmark', 'STSBenchmarkUnsupervised',
-                      'SICKRelatednessUnsupervised', 'Length', 'WordContent', 'Depth', 'TopConstituents',
-                      'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
+                      'SICKEntailment', 'SICKRelatedness', 'STSBenchmark', 'Length', 'WordContent', 'Depth',
+                      'TopConstituents', 'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
     results = se.eval(transfer_tasks)
     print(results)

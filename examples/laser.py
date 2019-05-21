@@ -35,7 +35,7 @@ def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
     bpe_batch = []
     for sent in batch:
-        tokens = TokenLine(sent, lang='en', lower_case=True, romanize=False)
+        tokens = TokenLine(sent, lang=params['lang'], lower_case=True, romanize=False)
         bpe_codes = BPEfastApplyLine(tokens, params_senteval['bpe'])
         bpe_batch += [bpe_codes]
     embeddings = params['laser'].encode_sentences(bpe_batch)
@@ -43,7 +43,7 @@ def batcher(params, batch):
 
 
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'batch_size': 128}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'batch_size': 128, 'lang': 'en'}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 

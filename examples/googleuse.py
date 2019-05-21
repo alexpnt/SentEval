@@ -24,7 +24,6 @@ sys.path.insert(0, PATH_TO_SENTEVAL)
 import senteval
 
 # tensorflow session
-session = tf.Session()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TFHUB_CACHE_DIR'] = '../data/models/tfhub_modules'
 
@@ -36,27 +35,20 @@ def prepare(params, samples):
 
 def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
-    embeddings = params['google_use'](batch).eval(session=session)
+    embeddings = params['google_use'](batch).eval(session=params['tf_session'])
     return embeddings
 
-
-def make_embed_fn(module):
-    with tf.Graph().as_default():
-        sentences = tf.placeholder(tf.string)
-        embed = hub.Module(module)
-        embeddings = embed(sentences)
-        session = tf.train.MonitoredSession()
-    return lambda x: session.run(embeddings, {sentences: x})
-
-
-# Start TF session and load Google Universal Sentence Encoder
-encoder = make_embed_fn("https://tfhub.dev/google/universal-sentence-encoder-large/3")
 
 # Set params for SentEval
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
-params_senteval['google_use'] = encoder
+
+# Start TF session and load Google Universal Sentence Encoder
+params_senteval['google_use'] = hub.Module("https://tfhub.dev/google/universal-sentence-encoder-large/3")
+params_senteval['tf_session'] = tf.Session()
+params_senteval['tf_session'].run([tf.global_variables_initializer(), tf.tables_initializer()])
+
 
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)

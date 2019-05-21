@@ -28,15 +28,15 @@ def prepare(params, samples):
 
 
 def batcher(params, batch):
-    print('Encoding ...')
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
 
     elmo = params['elmo'](batch, signature="default", as_dict=True)["elmo"].eval(session=params['tf_session'])
-    elmo_mean_pooling = params['elmo'](batch, signature="default", as_dict=True)["default"].eval(session=params['tf_session'])
 
+    # elmo_mean_pooling = params['elmo'](batch, signature="default", as_dict=True)["default"].eval(
+    #     session=params['tf_session'])
     # elmo_max_pooling = np.amax(elmo, axis=1)
 
-    return elmo_mean_pooling
+    return elmo
 
 
 # Set params for SentEval
@@ -48,7 +48,6 @@ params_senteval['elmo'] = hub.Module("https://tfhub.dev/google/elmo/2", trainabl
 params_senteval['tf_session'] = tf.Session()
 params_senteval['tf_session'].run(tf.global_variables_initializer())
 
-
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
 
@@ -56,9 +55,8 @@ if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare)
     transfer_tasks = ['STS12', 'STS13', 'STS14', 'STS15', 'STS16',
                       'MR', 'CR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
-                      'SICKEntailment', 'SICKRelatedness', 'STSBenchmark', 'STSBenchmarkUnsupervised',
-                      'SICKRelatednessUnsupervised', 'Length', 'WordContent', 'Depth', 'TopConstituents',
-                      'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
+                      'SICKEntailment', 'SICKRelatedness', 'STSBenchmark', 'Length', 'WordContent', 'Depth',
+                      'TopConstituents','BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
     results = se.eval(transfer_tasks)
     print(results)
