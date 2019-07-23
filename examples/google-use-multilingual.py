@@ -13,6 +13,7 @@ import logging
 import tensorflow as tf
 import tensorflow_hub as hub
 import tf_sentencepiece
+import json
 
 tf.logging.set_verbosity(0)
 
@@ -75,4 +76,4 @@ if __name__ == "__main__":
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
     results = se.eval(['STSBenchmarkUnsupervised', 'SICKRelatednessUnsupervised'])
-    print(results)
+    print(json.dumps(results, indent=4, sort_keys=True))
