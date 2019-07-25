@@ -8,14 +8,16 @@ PATH_TO_SENTEVAL = '../'
 PATH_TO_DATA = '../data'
 
 # import XLNET
-PATH_TO_XLNET = 'xlnet'
+PATH_TO_XLNET = '/home/arpinto/WIT/projects/proofs-of-concept/xlnet'
 os.environ['xlnet'] = PATH_TO_XLNET
 sys.path.insert(0, PATH_TO_XLNET)
-import abstract_xlnet
+import xlnet_embed
 
 # xlnet params
-MODEL_BASE_PATH = '/xlnet_cased_L-12_H-768_A-12/'
+MODEL_BASE_PATH = '/home/arpinto/WIT/data/models/xlnet/xlnet_cased_L-12_H-768_A-12/'
 MODEL_CONFIG_PATH = MODEL_BASE_PATH + 'xlnet_config.json'
+MODEL_CKPT_PATH = MODEL_BASE_PATH + 'xlnet_model.ckpt'
+MODEL_FINETUNED_DIR = MODEL_BASE_PATH + 'finetuned/'
 SPIECE_MODEL_FILE = MODEL_BASE_PATH + 'spiece.model'
 
 MAX_SEQ_LENGTH = 512
@@ -34,10 +36,11 @@ def prepare(params, samples):
 
 def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
-    embeddings = abstract_xlnet.encode_sentences(batch, params['xlnet_config']['model_config'],
-                                                 params['xlnet_config']['run_config'],
-                                                 params['xlnet_config']['tokenizer'],
-                                                 params['xlnet_max_seq_length'])
+    embeddings = xlnet_embed.encode_sentences(batch, params['xlnet_tokenizer'],
+                                              params['xlnet_config']['max_seq_length'],
+                                              params['xlnet_config']['model_config_path'],
+                                              params['xlnet_config']['model_ckpt_path'],
+                                              params['xlnet_config']['model_finetuned_dir'])
     return embeddings
 
 
@@ -46,8 +49,12 @@ params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'b
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 
-params_senteval['xlnet_config'] = abstract_xlnet.build_xlnet_config(MODEL_CONFIG_PATH, SPIECE_MODEL_FILE)
-params_senteval['xlnet_max_seq_length'] = MAX_SEQ_LENGTH
+params_senteval['xlnet_tokenizer'] = xlnet_embed.tokenize_fn_builder(SPIECE_MODEL_FILE)
+params_senteval['xlnet_config'] = {'max_seq_length': MAX_SEQ_LENGTH,
+                                   'model_base_path': MODEL_BASE_PATH,
+                                   'model_config_path': MODEL_CONFIG_PATH,
+                                   'model_ckpt_path': MODEL_CKPT_PATH,
+                                   'model_finetuned_dir': MODEL_FINETUNED_DIR}
 
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
@@ -60,5 +67,5 @@ if __name__ == "__main__":
                       'SICKRelatednessUnsupervised', 'Length', 'WordContent', 'Depth', 'TopConstituents',
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
-    results = se.eval(transfer_tasks)
+    results = se.eval(['STS13'])
     print(json.dumps(results, indent=4, sort_keys=True))
