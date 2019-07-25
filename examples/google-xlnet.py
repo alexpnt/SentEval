@@ -14,8 +14,10 @@ sys.path.insert(0, PATH_TO_XLNET)
 import abstract_xlnet
 
 # xlnet params
-MODEL_CONFIG_PATH = '/xlnet_config.json'
-SPIECE_MODEL_FILE = '/spiece.model'
+MODEL_BASE_PATH = '/xlnet_cased_L-12_H-768_A-12/'
+MODEL_CONFIG_PATH = MODEL_BASE_PATH + 'xlnet_config.json'
+SPIECE_MODEL_FILE = MODEL_BASE_PATH + 'spiece.model'
+
 MAX_SEQ_LENGTH = 512
 
 # import SentEval
