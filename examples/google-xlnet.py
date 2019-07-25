@@ -14,7 +14,7 @@ sys.path.insert(0, PATH_TO_XLNET)
 import xlnet_embed
 
 # xlnet params
-MODEL_BASE_PATH = '/home/arpinto/WIT/data/models/xlnet/xlnet_cased_L-12_H-768_A-12/'
+MODEL_BASE_PATH = '/xlnet_cased_L-12_H-768_A-12/'
 MODEL_CONFIG_PATH = MODEL_BASE_PATH + 'xlnet_config.json'
 MODEL_CKPT_PATH = MODEL_BASE_PATH + 'xlnet_model.ckpt'
 MODEL_FINETUNED_DIR = MODEL_BASE_PATH + 'finetuned/'
