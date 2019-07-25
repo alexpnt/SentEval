@@ -8,7 +8,7 @@ PATH_TO_SENTEVAL = '../'
 PATH_TO_DATA = '../data'
 
 # import XLNET
-PATH_TO_XLNET = '/home/arpinto/WIT/projects/proofs-of-concept/xlnet'
+PATH_TO_XLNET = '/xlnet'
 os.environ['xlnet'] = PATH_TO_XLNET
 sys.path.insert(0, PATH_TO_XLNET)
 import xlnet_embed
