@@ -8,18 +8,19 @@ PATH_TO_SENTEVAL = '../'
 PATH_TO_DATA = '../data'
 
 # import XLNET
-PATH_TO_XLNET = '/xlnet'
+PATH_TO_XLNET = '/xlnet/'
 os.environ['xlnet'] = PATH_TO_XLNET
 sys.path.insert(0, PATH_TO_XLNET)
 import xlnet_embed
 
 # xlnet params
-MODEL_BASE_PATH = '/xlnet_cased_L-12_H-768_A-12/'
-MODEL_CONFIG_PATH = MODEL_BASE_PATH + 'xlnet_config.json'
-MODEL_CKPT_PATH = MODEL_BASE_PATH + 'xlnet_model.ckpt'
-MODEL_FINETUNED_DIR = MODEL_BASE_PATH + 'finetuned/'
-SPIECE_MODEL_FILE = MODEL_BASE_PATH + 'spiece.model'
-
+XLNET_BASE_PATH = 'data/models/xlnet/'
+XLNET_MODEL_PATH = XLNET_BASE_PATH + 'base/en/xlnet_cased_L-12_H-768_A-12/'
+XLNET_CONFIG_PATH = XLNET_MODEL_PATH + 'xlnet_config.json'
+MODEL_CKPT_PATH = XLNET_BASE_PATH + 'base-fine-tuned/en/model.ckpt-1200'
+XLNET_CKPT_PATH = XLNET_MODEL_PATH + 'finetuned/'
+SPIECE_MODEL_PATH = XLNET_MODEL_PATH + 'spiece.model'
+MODEL_FINETUNED_DIR = XLNET_MODEL_PATH + 'finetuned/'
 MAX_SEQ_LENGTH = 512
 
 # import SentEval
@@ -49,10 +50,9 @@ params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'b
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 
-params_senteval['xlnet_tokenizer'] = xlnet_embed.tokenize_fn_builder(SPIECE_MODEL_FILE)
+params_senteval['xlnet_tokenizer'] = xlnet_embed.tokenize_fn_builder(SPIECE_MODEL_PATH)
 params_senteval['xlnet_config'] = {'max_seq_length': MAX_SEQ_LENGTH,
-                                   'model_base_path': MODEL_BASE_PATH,
-                                   'model_config_path': MODEL_CONFIG_PATH,
+                                   'model_config_path': XLNET_CONFIG_PATH,
                                    'model_ckpt_path': MODEL_CKPT_PATH,
                                    'model_finetuned_dir': MODEL_FINETUNED_DIR}
 
@@ -67,5 +67,5 @@ if __name__ == "__main__":
                       'SICKRelatednessUnsupervised', 'Length', 'WordContent', 'Depth', 'TopConstituents',
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
                       'OddManOut', 'CoordinationInversion']
-    results = se.eval(['STS13'])
+    results = se.eval(transfer_tasks)
     print(json.dumps(results, indent=4, sort_keys=True))
