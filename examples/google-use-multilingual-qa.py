@@ -13,6 +13,7 @@ import logging
 import tensorflow as tf
 import tensorflow_hub as hub
 import tf_sentencepiece
+import numpy as np
 import json
 
 tf.logging.set_verbosity(0)
@@ -54,14 +55,13 @@ def batcher(params, batch):
     embeddings = []
     for sent in batch:
         embeddings += [session.run(question_encoder, feed_dict={question: [sent]})['outputs'][0]]
-    print(embeddings)
 
-    # return embeddings
+    return np.vstack(embeddings)
 
 
 # Set params for SentEval
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
-params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 4,
+params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 1024,
                                  'tenacity': 3, 'epoch_size': 2}
 
 # Set up logger
